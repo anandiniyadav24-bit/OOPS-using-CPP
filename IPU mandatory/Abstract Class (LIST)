@@ -1,0 +1,84 @@
+#include <iostream>
+#include <stdexcept>
+using namespace std;
+
+class list {
+protected:
+    int arr[10];
+    int last; // index of last occupied element; -1 means empty
+
+public:
+    list() : last(-1) {}
+
+    virtual void store(int val) = 0;
+    virtual int retrieve() = 0;
+
+    virtual ~list() = default;
+};
+
+class stack : public list {
+public:
+    void store(int val) override {
+        if (last >= 9) {
+            throw out_of_range("Stack Overflow.");
+        }
+
+        arr[++last] = val;
+    }
+
+    int retrieve() override {
+        if (last < 0) {
+            throw out_of_range("Stack Underflow.");
+        }
+
+        return arr[last--];
+    }
+};
+
+class queue : public list {
+public:
+    void store(int val) override {
+        if (last >= 9) {
+            throw out_of_range("Queue Overflow.");
+        }
+
+        arr[++last] = val;
+    }
+
+    int retrieve() override {
+        if (last < 0) {
+            throw out_of_range("Queue Underflow.");
+        }
+
+        int value = arr[0];
+
+        // Shift remaining items forward.
+        for (int i = 0; i < last; i++) {
+            arr[i] = arr[i + 1];
+        }
+
+        last--;
+        return value;
+    }
+};
+
+int main() {
+    try {
+        stack s;
+        s.store(10);
+        s.store(20);
+
+        cout << "Stack retrieve: " << s.retrieve() << endl; // 20
+
+        queue q;
+        q.store(10);
+        q.store(20);
+
+        cout << "Queue retrieve: " << q.retrieve() << endl; // 10
+    }
+    catch (const out_of_range& e) {
+        cout << e.what() << endl;
+    }
+
+    return 0;
+}
